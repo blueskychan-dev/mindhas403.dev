@@ -575,6 +575,16 @@
     /* Rows: shrink nested indent + wrap long repo slugs */
     .repo-detail { padding-left: 16px; padding-right: 14px; }
     .row-title { overflow-wrap: anywhere; }
+
+    /* Repo rows: drop the tags onto their own line so they don't crush
+       the title column (which would otherwise wrap one char per line). */
+    .repo-head { flex-wrap: wrap; }
+    .repo-head .row-end {
+      width: 100%;
+      margin-left: 52px;
+      justify-content: space-between;
+    }
+    .repo-head .row-end .tags { justify-content: flex-start; }
   }
 
   /* ---------- Header nav ---------- */
