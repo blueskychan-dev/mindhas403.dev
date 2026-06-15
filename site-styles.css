@@ -43,7 +43,7 @@
     --pink-fg: #f095cc;
   }
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; overflow-x: hidden; }
 
   /* Twemoji — consistent emoji glyphs across platforms */
   img.emoji {
@@ -59,6 +59,7 @@
   .chip img.emoji { vertical-align: -0.15em; }
   body {
     margin: 0;
+    overflow-x: hidden;
     background: var(--window-bg);
     color: var(--fg);
     -webkit-text-size-adjust: 100%;
@@ -298,11 +299,13 @@
   .row-icon.green { background: var(--success-bg); }
   .row-icon.yellow { background: var(--warning-bg); }
   .row-body { flex: 1; min-width: 0; }
-  .row-title { font-weight: 700; font-size: 14.5px; }
+  .row-title { font-weight: 700; font-size: 14.5px; overflow-wrap: anywhere; }
   .row-title code {
     font-family: "JetBrains Mono", monospace;
     font-size: 13px;
     font-weight: 600;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
   .row-sub { color: var(--fg-dim); font-size: 13px; margin-top: 1px; text-wrap: pretty; }
   .row-end { flex: none; display: flex; align-items: center; gap: 8px; }
