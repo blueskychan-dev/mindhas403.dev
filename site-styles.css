@@ -61,6 +61,9 @@
     margin: 0;
     background: var(--window-bg);
     color: var(--fg);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
     font-family: "Red Hat Display", "Noto Sans Thai", "Cantarell", sans-serif;
     font-size: 15px;
     line-height: 1.5;
@@ -547,10 +550,31 @@
     font-size: 13px;
   }
 
-  @media (max-width: 560px) {
+  @media (max-width: 600px) {
+    /* Header: keep nav + theme on row 1, drop the identity switcher
+       onto its own full-width row so nothing overflows on phones. */
+    .headerbar { flex-wrap: wrap; gap: 8px; row-gap: 8px; padding: 8px 12px; }
+    .hb-nav { order: 1; }
+    .hb-spacer { order: 2; }
+    #themeBtn { order: 3; }
+    .segmented { order: 4; flex-basis: 100%; }
+    .segmented button { flex: 1; padding: 9px 14px; font-size: 13px; }
+    .hb-link { padding: 6px 11px; font-size: 13.5px; }
     .headerbar .hb-title span.hb-name { display: none; }
+
+    /* Page + hero breathing room for small screens */
+    .page { padding: 22px 14px 64px 14px; }
+    .hero { padding: 8px 0 4px 0; }
     .hero h1 { font-size: 25px; }
-    .segmented button { padding: 5px 11px; font-size: 12.5px; }
+    .avatar-wrap, .avatar { width: 104px; height: 104px; }
+    .hero .bio { font-size: 14.5px; }
+
+    /* Section rhythm */
+    .section { margin-top: 32px; }
+
+    /* Rows: shrink nested indent + wrap long repo slugs */
+    .repo-detail { padding-left: 16px; padding-right: 14px; }
+    .row-title { overflow-wrap: anywhere; }
   }
 
   /* ---------- Header nav ---------- */
