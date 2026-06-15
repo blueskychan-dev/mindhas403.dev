@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-page="blog">
+<head>
+<meta charset="UTF-8"></meta>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+<title>Blog · blueskychan_</title>
+<meta name="description" content="Notes, CTF write-ups, and random thoughts by blueskychan_ — cybersecurity, Linux, self-hosting, and personal stories."></meta>
+<meta name="author" content="Phapoom Saksri (blueskychan_)"></meta>
+<meta name="theme-color" content="#d56199"></meta>
+<link rel="canonical" href="https://mindhas403.dev/blog"></link>
+<link rel="icon" type="image/webp" href="favicon.webp"></link>
+<link rel="apple-touch-icon" href="favicon.webp"></link>
+<meta property="og:type" content="website"></meta>
+<meta property="og:site_name" content="blueskychan_"></meta>
+<meta property="og:title" content="Blog · blueskychan_"></meta>
+<meta property="og:description" content="Notes, CTF write-ups, and random thoughts by blueskychan_."></meta>
+<meta property="og:url" content="https://mindhas403.dev/blog"></meta>
+<meta property="og:image" content="https://mindhas403.dev/assets/avatar-online.jpg"></meta>
+<meta property="og:image:alt" content="blueskychan_ avatar"></meta>
+<meta name="twitter:card" content="summary"></meta>
+<meta name="twitter:title" content="Blog · blueskychan_"></meta>
+<meta name="twitter:description" content="Notes, CTF write-ups, and random thoughts by blueskychan_."></meta>
+<meta name="twitter:image" content="https://mindhas403.dev/assets/avatar-online.jpg"></meta>
+<meta name="twitter:creator" content="@blueskychan_"></meta>
+<link rel="preconnect" href="https://fonts.googleapis.com"></link>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"></link>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800&amp;family=Noto+Sans+Thai:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"></link>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css"></link>
+<link rel="stylesheet" href="site-styles.css"></link>
+</head>
+<body>
+
+  <header class="headerbar" data-screen-label="Header bar">
+    <nav class="hb-nav" aria-label="Pages">
+      <a class="hb-link" href="Personal%20Website.html">Home</a>
+      <a class="hb-link" href="links.html">Links</a>
+      <a class="hb-link active" href="blog.html">Blog</a>
+    </nav>
+    <div class="hb-spacer"></div>
+    <nav class="segmented" aria-label="Identity">
+      <button id="segOnline" class="active" type="button">🌐 Online</button>
+      <button id="segIrl" type="button">🪪 IRL</button>
+    </nav>
+    <button class="icon-btn" id="themeBtn" type="button" title="Toggle dark mode" aria-label="Toggle dark mode">
+      <svg class="icon-moon" viewBox="0 0 16 16"><path d="M8.1 1.2A6.9 6.9 0 1 0 14.8 9 5.4 5.4 0 0 1 8.1 1.2z"></path></svg>
+      <svg class="icon-sun" viewBox="0 0 16 16"><path d="M8 4.5A3.5 3.5 0 1 0 8 11.5 3.5 3.5 0 0 0 8 4.5zM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0zm0 13a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 8 13zM0 8a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5H.75A.75.75 0 0 1 0 8zm13 0a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5A.75.75 0 0 1 13 8zM2.3 2.3a.75.75 0 0 1 1.06 0l1.06 1.06a.75.75 0 1 1-1.06 1.06L2.3 3.36a.75.75 0 0 1 0-1.06zm9.28 9.28a.75.75 0 0 1 1.06 0l1.06 1.06a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.06zm2.12-9.28a.75.75 0 0 1 0 1.06l-1.06 1.06a.75.75 0 1 1-1.06-1.06l1.06-1.06a.75.75 0 0 1 1.06 0zM4.42 11.58a.75.75 0 0 1 0 1.06l-1.06 1.06a.75.75 0 0 1-1.06-1.06l1.06-1.06a.75.75 0 0 1 1.06 0z"></path></svg>
+    </button>
+  </header>
+
+  <main class="page">
+    <section class="section" data-screen-label="Blog" style="margin-top: 12px;">
+      <h2 class="section-title">Blog <span class="tag" id="blogCount">…</span></h2>
+      <p class="section-sub">Notes, write-ups, and random thoughts</p>
+      <div class="blog-list" id="blogList">
+        <div class="blog-loading">Loading posts…</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ Blog reader (full screen) ============ -->
+  <div class="reader" id="blogReader" data-screen-label="Blog reader">
+    <div class="reader-head">
+      <button class="reader-back" id="brClose" type="button" aria-label="Back to posts">
+        <svg viewBox="0 0 16 16"><path d="M9.78 3.22a.75.75 0 0 1 0 1.06L6.06 8l3.72 3.72a.75.75 0 1 1-1.06 1.06L4.22 8.53a.75.75 0 0 1 0-1.06l4.5-4.25a.75.75 0 0 1 1.06 0z"></path></svg>
+        Back
+      </button>
+      <div class="br-title" id="brTitle">Post</div>
+      <a class="br-git" id="brGithub" href="https://github.com/blueskychan-dev/blogs" target="_blank" rel="noopener" title="View source on GitHub"><i class="ph-fill ph-github-logo" aria-hidden="true"></i> Source</a>
+    </div>
+    <div class="reader-body" id="brBody"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+  <script src="site-core.js"></script>
+  <script src="blog.js"></script>
+</body>
+</html>
