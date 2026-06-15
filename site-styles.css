@@ -470,7 +470,7 @@
   .filter-row button.active { background: var(--accent); color: var(--accent-fg); }
   .cert-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
     gap: 14px;
   }
   .cert-card {
@@ -624,7 +624,7 @@
   /* ---------- Links grid ---------- */
   .link-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(248px, 100%), 1fr));
     gap: 12px;
   }
   .link-card {
