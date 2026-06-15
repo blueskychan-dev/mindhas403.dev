@@ -433,7 +433,7 @@
   .rd-leg i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
   .rd-leg b { color: var(--fg); font-weight: 600; }
   .rd-note { font-size: 13px; color: var(--fg-dim); }
-  .rd-source {
+  .rd-source, .rd-source:visited {
     display: inline-flex;
     align-items: center;
     gap: 7px;

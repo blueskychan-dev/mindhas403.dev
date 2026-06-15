@@ -174,7 +174,24 @@
       var detail = item.querySelector(".repo-detail");
       if (open && !detail) { detail = buildDetail(item); }
       if (detail) {
-        detail.style.maxHeight = open ? (detail.scrollHeight + "px") : "0px";
+        if (open) {
+          // Animate to the measured height, then release the cap to `none` so
+          // the box settles to its real content height once async fonts (the
+          // GitHub icon + JetBrains Mono) finish loading. A frozen pixel value
+          // measured too early is what made the bottom spacing differ per row.
+          detail.style.maxHeight = detail.scrollHeight + "px";
+          detail.addEventListener("transitionend", function te(ev) {
+            if (ev.target !== detail || ev.propertyName !== "max-height") { return; }
+            detail.removeEventListener("transitionend", te);
+            if (item.classList.contains("open")) { detail.style.maxHeight = "none"; }
+          });
+        } else {
+          // Re-fix the current height before collapsing so it can animate from
+          // a concrete value down to 0 (can't transition from `none`).
+          detail.style.maxHeight = detail.scrollHeight + "px";
+          void detail.offsetHeight; // force reflow so the next change animates
+          detail.style.maxHeight = "0px";
+        }
       }
     });
   }
