@@ -1,6 +1,9 @@
 (function () {
   var listEl = document.getElementById("blogList");
   if (!listEl) { return; }
+  var searchWrap = document.getElementById("blogSearch");
+  var searchInput = document.getElementById("blogSearchInput");
+  var allPosts = [];
 
   var JSON_URL = "https://raw.githubusercontent.com/blueskychan-dev/blogs/main/blogs.json";
   var RAW_BASE = "https://raw.githubusercontent.com/blueskychan-dev/blogs/main/";
@@ -79,7 +82,9 @@
       if (countEl) { countEl.textContent = posts.length; }
       bySlug = {};
       posts.forEach(function (p) { bySlug[slugFor(p)] = p; });
-      render(posts);
+      allPosts = posts;
+      if (searchWrap && posts.length) { searchWrap.hidden = false; }
+      applyFilter(); // render, honoring any text already typed into the search box
       route(); // honor a deep link on first load (/post/<slug> or ?post=<slug>)
     })
     .catch(function () {
@@ -92,12 +97,33 @@
         '<a href="https://github.com/blueskychan-dev/blogs" target="_blank" rel="noopener">GitHub</a> instead.</div></div>';
     });
 
-  function render(posts) {
+  // ---------- Search / filter ----------
+  // Posts are filtered in-memory; bySlug still holds every post so deep links keep working.
+  function postMatches(p, terms) {
+    var hay = [p.title, p.desc].concat(p.tags || []).join(" ").toLowerCase();
+    return terms.every(function (t) { return hay.indexOf(t) !== -1; });
+  }
+  function applyFilter() {
+    var q = (searchInput && searchInput.value || "").trim().toLowerCase();
+    if (!q) { render(allPosts); return; }
+    var terms = q.split(/\s+/);
+    render(allPosts.filter(function (p) { return postMatches(p, terms); }), q);
+  }
+  if (searchInput) { searchInput.addEventListener("input", applyFilter); }
+
+  function render(posts, query) {
     if (!posts.length) {
-      listEl.innerHTML =
-        '<div class="empty-state"><div class="es-emoji">\u270d\ufe0f</div>' +
-        '<div class="es-title">No posts yet</div>' +
-        '<div class="es-sub">First posts are coming soon. Check back later!</div></div>';
+      if (query) {
+        listEl.innerHTML =
+          '<div class="empty-state"><div class="es-emoji">\ud83d\udd0d</div>' +
+          '<div class="es-title">No matching posts</div>' +
+          '<div class="es-sub">Nothing matched \u201c' + esc(query) + '\u201d. Try a different word or tag.</div></div>';
+      } else {
+        listEl.innerHTML =
+          '<div class="empty-state"><div class="es-emoji">\u270d\ufe0f</div>' +
+          '<div class="es-title">No posts yet</div>' +
+          '<div class="es-sub">First posts are coming soon. Check back later!</div></div>';
+      }
       return;
     }
     listEl.innerHTML = posts.map(function (p) {

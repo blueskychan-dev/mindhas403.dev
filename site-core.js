@@ -200,24 +200,56 @@
   if (lightbox) {
     var lbImg = document.getElementById("lbImg");
     var lbTitle = document.getElementById("lbTitle");
+    var lbMeta = document.getElementById("lbMeta");
+    var lbCount = document.getElementById("lbCount");
+    var lbPrev = document.getElementById("lbPrev");
+    var lbNext = document.getElementById("lbNext");
     var grid = document.getElementById("certGrid");
+    var gallery = [];
+    var current = -1;
+
+    function showAt(index) {
+      if (index < 0 || index >= gallery.length) { return; }
+      current = index;
+      var card = gallery[index];
+      var img = card.querySelector("img");
+      var title = card.querySelector(".cc-title");
+      var meta = card.querySelector(".cc-meta");
+      if (lbImg && img) { lbImg.src = img.src; lbImg.alt = img.alt || "Certificate full view"; }
+      if (lbTitle) { lbTitle.textContent = title ? title.textContent : "Certificate"; }
+      if (lbMeta) { lbMeta.textContent = meta ? meta.textContent : ""; }
+      if (lbCount) { lbCount.textContent = (index + 1) + " / " + gallery.length; }
+      if (lbPrev) { lbPrev.disabled = index <= 0; }
+      if (lbNext) { lbNext.disabled = index >= gallery.length - 1; }
+    }
+
     function closeLightbox() { lightbox.classList.remove("open"); if (lbImg) { lbImg.removeAttribute("src"); } }
+
     if (grid) {
       grid.addEventListener("click", function (e) {
         var card = e.target.closest(".cert-card");
         if (!card) { return; }
-        var img = card.querySelector("img");
-        var title = card.querySelector(".cc-title");
-        if (lbImg && img) { lbImg.src = img.src; }
-        if (lbTitle) { lbTitle.textContent = title ? title.textContent : "Certificate"; }
+        // Build the gallery from currently-visible cards so it respects the active filter.
+        gallery = Array.prototype.filter.call(
+          grid.querySelectorAll(".cert-card"),
+          function (c) { return !c.classList.contains("hidden"); }
+        );
+        var index = gallery.indexOf(card);
+        if (index < 0) { return; }
+        showAt(index);
         lightbox.classList.add("open");
       });
     }
+    if (lbPrev) { lbPrev.addEventListener("click", function () { showAt(current - 1); }); }
+    if (lbNext) { lbNext.addEventListener("click", function () { showAt(current + 1); }); }
     var lbClose = document.getElementById("lbClose");
     if (lbClose) { lbClose.addEventListener("click", closeLightbox); }
     lightbox.addEventListener("click", function (e) { if (e.target === lightbox) { closeLightbox(); } });
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && lightbox.classList.contains("open")) { closeLightbox(); }
+      if (!lightbox.classList.contains("open")) { return; }
+      if (e.key === "Escape") { closeLightbox(); }
+      else if (e.key === "ArrowLeft") { showAt(current - 1); }
+      else if (e.key === "ArrowRight") { showAt(current + 1); }
     });
   }
 })();
