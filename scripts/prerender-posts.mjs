@@ -72,8 +72,8 @@ function headFor(post, slug) {
 <meta name="twitter:creator" content="@blueskychan_"></meta>
 <link rel="preconnect" href="https://fonts.googleapis.com"></link>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"></link>
-<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800&amp;family=Noto+Sans+Thai:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"></link>
-<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css"></link>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800&amp;family=Noto+Sans+Thai:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'"></link>
+<noscript><link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800&amp;family=Noto+Sans+Thai:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"></link></noscript>
 <link rel="stylesheet" href="/site-styles.css"></link>
 </head>`;
 }

@@ -26,13 +26,13 @@
     online: {
       name: "blueskychan_",
       handle: "aka mindhas403 · she/they",
-      avatar: "assets/avatar-online.jpg",
+      avatar: "assets/avatar-online.webp",
       title: "blueskychan_ · about me"
     },
     irl: {
       name: "Phapoom Saksri",
       handle: "she/they",
-      avatar: "assets/avatar-irl.jpg",
+      avatar: "assets/avatar-irl.webp",
       title: "Phapoom Saksri · about me"
     }
   };

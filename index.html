@@ -24,8 +24,9 @@
 <meta name="twitter:creator" content="@blueskychan_"></meta>
 <link rel="preconnect" href="https://fonts.googleapis.com"></link>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"></link>
-<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800&amp;family=Noto+Sans+Thai:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"></link>
-<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css"></link>
+<link rel="preload" as="image" href="assets/avatar-online.webp" fetchpriority="high"></link>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800&amp;family=Noto+Sans+Thai:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'"></link>
+<noscript><link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800&amp;family=Noto+Sans+Thai:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"></link></noscript>
 <link rel="stylesheet" href="site-styles.css"></link>
 </head>
 <body>
@@ -52,7 +53,7 @@
     <!-- ============ Hero ============ -->
     <section class="hero" data-screen-label="Profile hero">
       <div class="avatar-wrap">
-        <img class="avatar" id="heroAvatar" src="assets/avatar-online.jpg" alt="Avatar"></img>
+        <img class="avatar" id="heroAvatar" src="assets/avatar-online.webp" alt="Avatar" width="128" height="128" fetchpriority="high" decoding="async"></img>
       </div>
       <h1 id="heroName">blueskychan_</h1>
       <p class="handle" id="heroHandle">aka mindhas403 · she/they</p>
@@ -64,7 +65,7 @@
       </div>
       <div class="btn-row">
         <a class="pill-btn suggested" href="https://github.com/blueskychan-dev" target="_blank" rel="noopener">
-          <i class="ph-fill ph-github-logo" aria-hidden="true"></i> My GitHub
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg> My GitHub
         </a>
         <a class="pill-btn" href="mailto:hello@mindhas403.dev">
           <svg viewBox="0 0 16 16"><path d="M2.5 3.5h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1zm.4 1.5L8 8.1 13.1 5H2.9zM13 6.3 8.3 9.4a.6.6 0 0 1-.6 0L3 6.3V11h10V6.3z"></path></svg>
