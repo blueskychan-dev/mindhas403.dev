@@ -196,6 +196,47 @@
     });
   }
 
+  /* ---------- Devices: expand spec panels ---------- */
+  var deviceList = document.getElementById("deviceList");
+  if (deviceList) {
+    deviceList.addEventListener("click", function (e) {
+      var head = e.target.closest(".dev-head");
+      if (!head) { return; }
+      var item = head.closest(".dev-item");
+      var open = item.classList.toggle("open");
+      head.setAttribute("aria-expanded", open ? "true" : "false");
+      var detail = item.querySelector(".dev-detail");
+      if (!detail) { return; }
+      if (open) {
+        detail.style.maxHeight = detail.scrollHeight + "px";
+        detail.addEventListener("transitionend", function te(ev) {
+          if (ev.target !== detail || ev.propertyName !== "max-height") { return; }
+          detail.removeEventListener("transitionend", te);
+          if (item.classList.contains("open")) { detail.style.maxHeight = "none"; }
+        });
+      } else {
+        detail.style.maxHeight = detail.scrollHeight + "px";
+        void detail.offsetHeight;
+        detail.style.maxHeight = "0px";
+      }
+    });
+  }
+
+  /* ---------- History tabs (placeholder — all panels "coming soon") ---------- */
+  var historyTabs = document.getElementById("historyTabs");
+  if (historyTabs) {
+    historyTabs.addEventListener("click", function (e) {
+      var btn = e.target.closest("button");
+      if (!btn) { return; }
+      var buttons = historyTabs.querySelectorAll("button");
+      for (var i = 0; i < buttons.length; i++) {
+        var on = buttons[i] === btn;
+        buttons[i].classList.toggle("active", on);
+        buttons[i].setAttribute("aria-selected", on ? "true" : "false");
+      }
+    });
+  }
+
   var lightbox = document.getElementById("lightbox");
   if (lightbox) {
     var lbImg = document.getElementById("lbImg");

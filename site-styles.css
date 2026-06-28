@@ -443,6 +443,86 @@
   .rd-source i { font-size: 15px; }
   .rd-source svg { width: 13px; height: 13px; fill: currentColor; }
 
+  /* ---------- Devices (accordion) ---------- */
+  .dev-acc .dev-item { border-bottom: 1px solid var(--separator); }
+  .dev-acc .dev-item:last-child { border-bottom: none; }
+  .dev-head {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+  }
+  .dev-head:hover { background: var(--row-hover); }
+  .dev-head .chev {
+    width: 15px; height: 15px; fill: var(--fg-dim);
+    transition: transform 0.22s ease;
+  }
+  .dev-item.open .dev-head .chev { transform: rotate(180deg); }
+  .dev-detail {
+    max-height: 0;
+    overflow: hidden;
+    padding: 0 18px 0 68px;
+    transition: max-height 0.28s ease, padding 0.28s ease;
+  }
+  .dev-item.open .dev-detail { padding-top: 4px; padding-bottom: 16px; }
+  .spec-list { display: flex; flex-direction: column; }
+  .spec-row {
+    display: flex;
+    gap: 14px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--separator);
+    font-size: 13px;
+  }
+  .spec-row:last-child { border-bottom: none; }
+  .spec-key {
+    flex: none;
+    width: 156px;
+    color: var(--fg-dim);
+    font-weight: 600;
+  }
+  .spec-val { flex: 1; min-width: 0; overflow-wrap: anywhere; text-wrap: pretty; }
+  .spec-val a { color: var(--accent-text); font-weight: 600; }
+  .spec-sublist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .spec-sublist li { display: flex; gap: 7px; }
+  .spec-sublist li::before { content: "–"; color: var(--fg-dim); flex: none; }
+  .spec-note { color: var(--fg-dim); }
+
+  /* ---------- Tabs (coming-soon placeholder) ---------- */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 16px 0;
+  }
+  .tabs button {
+    border: none;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 15px;
+    border-radius: 999px;
+    cursor: pointer;
+    background: var(--chip-bg);
+    color: var(--fg);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .tabs button.active { background: var(--accent); color: var(--accent-fg); }
+  .soon-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+    padding: 34px 20px;
+    color: var(--fg-dim);
+  }
+  .soon-panel .soon-emoji { font-size: 30px; }
+  .soon-panel .soon-title { font-weight: 700; font-size: 15px; color: var(--fg); }
+  .soon-panel .soon-sub { font-size: 13px; }
+
   /* ---------- Certificates ---------- */
   .filter-row {
     display: flex;
@@ -592,6 +672,18 @@
       justify-content: space-between;
     }
     .repo-head .row-end .tags { justify-content: flex-start; }
+
+    /* Devices: tighten the detail indent and stack each spec key over its
+       value so long hardware strings don't get crushed into one char/line. */
+    .dev-detail { padding-left: 16px; padding-right: 14px; }
+    .dev-head { flex-wrap: wrap; }
+    .dev-head .row-end {
+      width: 100%;
+      margin-left: 52px;
+      justify-content: space-between;
+    }
+    .spec-row { flex-direction: column; gap: 2px; }
+    .spec-key { width: auto; }
   }
 
   /* ---------- Header nav ---------- */
