@@ -11,6 +11,12 @@
   var REPO_BASE = "https://github.com/blueskychan-dev/blogs/blob/main/";
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+  // Comments run on Utterances (GitHub Issues). Each post maps to an issue titled
+  // "post/<slug>" in the repo below — the same pathname scheme the old blog used,
+  // so existing threads (e.g. post/mccooked, post/augupdate) are reused as-is.
+  var COMMENTS_REPO = "blueskychan-dev/blueskychan.dev";
+  var UTTERANCES_ORIGIN = "https://utteranc.es";
+
   function esc(t) {
     var d = document.createElement("div");
     d.textContent = t == null ? "" : String(t);
@@ -143,6 +149,30 @@
   var rBody = document.getElementById("brBody");
   var rGit = document.getElementById("brGithub");
 
+  // ---------- Comments ----------
+  function utterancesTheme() {
+    return document.documentElement.getAttribute("data-theme") === "dark" ? "github-dark" : "github-light";
+  }
+  function loadComments(slug, host) {
+    if (!host) { return; }
+    host.innerHTML = "";
+    var s = document.createElement("script");
+    s.src = UTTERANCES_ORIGIN + "/client.js";
+    s.async = true;
+    s.crossOrigin = "anonymous";
+    s.setAttribute("repo", COMMENTS_REPO);
+    s.setAttribute("issue-term", "post/" + slug);
+    s.setAttribute("theme", utterancesTheme());
+    host.appendChild(s);
+  }
+  // Keep the widget's theme in sync with the site's dark-mode toggle (data-theme on <html>).
+  new MutationObserver(function () {
+    var frame = document.querySelector(".utterances-frame");
+    if (frame && frame.contentWindow) {
+      frame.contentWindow.postMessage({ type: "set-theme", theme: utterancesTheme() }, UTTERANCES_ORIGIN);
+    }
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
   function stripFrontmatter(md) {
     return md.replace(/^\uFEFF?---\s*\r?\n[\s\S]*?\r?\n---\s*\r?\n/, "");
   }
@@ -157,6 +187,10 @@
     if (push !== false) { pushUrl(urlForSlug(slug)); }
     rBody.innerHTML = '<div class="reader-loading">Loading\u2026</div>';
     reader.classList.add("open");
+    // Lock the root element too: html has overflow-x:hidden, so the viewport
+    // scrollbar comes from <html>, not <body> — locking body alone leaves the
+    // background page scrollable and shows a second scrollbar behind the reader.
+    document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
     window.scrollTo(0, 0);
 
@@ -232,6 +266,10 @@
           if (!isExternal && isAsset) { a.href = abs; }
           if (h.charAt(0) !== "#") { a.target = "_blank"; a.rel = "noopener"; }
         });
+        rBody.insertAdjacentHTML("beforeend",
+          '<section class="post-comments"><h3 class="pc-title">Comments</h3>' +
+          '<div class="pc-host" id="brComments"></div></section>');
+        loadComments(slug, document.getElementById("brComments"));
         rBody.scrollTop = 0;
       })
       .catch(function () {
@@ -245,6 +283,7 @@
     var wasOpen = reader.classList.contains("open");
     reader.classList.remove("open");
     rBody.innerHTML = "";
+    document.documentElement.style.overflow = "";
     document.body.style.overflow = "";
     document.title = "Blog \u00b7 " + SITE_TITLE;
     if (push !== false && wasOpen) { pushUrl(listUrl()); }
