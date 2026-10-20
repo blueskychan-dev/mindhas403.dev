@@ -997,7 +997,8 @@
     font-weight: 700;
     color: var(--fg);
   }
-  .post-comments .pc-host .utterances { max-width: 100%; margin: 0; }
+  .post-comments .pc-host .giscus,
+  .post-comments .pc-host .giscus-frame { width: 100%; max-width: 100%; margin: 0; }
   @media (max-width: 600px) {
     .reader-body .post-comments { padding: 4px 16px 72px; }
   }

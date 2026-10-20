@@ -11,11 +11,19 @@
   var REPO_BASE = "https://github.com/blueskychan-dev/blogs/blob/main/";
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-  // Comments run on Utterances (GitHub Issues). Each post maps to an issue titled
-  // "post/<slug>" in the repo below — the same pathname scheme the old blog used,
-  // so existing threads (e.g. post/mccooked, post/augupdate) are reused as-is.
-  var COMMENTS_REPO = "blueskychan-dev/blueskychan.dev";
-  var UTTERANCES_ORIGIN = "https://utteranc.es";
+  // Comments run on Giscus (GitHub Discussions). Each post maps to a discussion
+  // titled "post/<slug>" in the repo below — the same pathname scheme the old
+  // Utterances setup used; those issue threads were converted to discussions, so
+  // existing comments (e.g. post/mccooked, post/augupdate) are reused as-is.
+  // strict=1 matches on a sha1 of the term (stored in the discussion body) so
+  // "post/mccooked" can't accidentally pick up "post/mccooked-th".
+  var GISCUS_ORIGIN = "https://giscus.app";
+  var GISCUS = {
+    repo: "blueskychan-dev/mindhas403.dev",
+    repoId: "R_kgDOS7fcHA",
+    category: "Announcements",
+    categoryId: "DIC_kwDOS7fcHM4DJMIy"
+  };
 
   function esc(t) {
     var d = document.createElement("div");
@@ -150,26 +158,39 @@
   var rGit = document.getElementById("brGithub");
 
   // ---------- Comments ----------
-  function utterancesTheme() {
-    return document.documentElement.getAttribute("data-theme") === "dark" ? "github-dark" : "github-light";
+  function giscusTheme() {
+    return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
   }
   function loadComments(slug, host) {
     if (!host) { return; }
     host.innerHTML = "";
+    var attrs = {
+      "data-repo": GISCUS.repo,
+      "data-repo-id": GISCUS.repoId,
+      "data-category": GISCUS.category,
+      "data-category-id": GISCUS.categoryId,
+      "data-mapping": "specific",
+      "data-term": "post/" + slug,
+      "data-strict": "1",
+      "data-reactions-enabled": "1",
+      "data-emit-metadata": "0",
+      "data-input-position": "bottom",
+      "data-theme": giscusTheme(),
+      "data-lang": "en",
+      "data-loading": "lazy"
+    };
     var s = document.createElement("script");
-    s.src = UTTERANCES_ORIGIN + "/client.js";
+    s.src = GISCUS_ORIGIN + "/client.js";
     s.async = true;
     s.crossOrigin = "anonymous";
-    s.setAttribute("repo", COMMENTS_REPO);
-    s.setAttribute("issue-term", "post/" + slug);
-    s.setAttribute("theme", utterancesTheme());
+    Object.keys(attrs).forEach(function (k) { s.setAttribute(k, attrs[k]); });
     host.appendChild(s);
   }
   // Keep the widget's theme in sync with the site's dark-mode toggle (data-theme on <html>).
   new MutationObserver(function () {
-    var frame = document.querySelector(".utterances-frame");
+    var frame = document.querySelector("iframe.giscus-frame");
     if (frame && frame.contentWindow) {
-      frame.contentWindow.postMessage({ type: "set-theme", theme: utterancesTheme() }, UTTERANCES_ORIGIN);
+      frame.contentWindow.postMessage({ giscus: { setConfig: { theme: giscusTheme() } } }, GISCUS_ORIGIN);
     }
   }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
