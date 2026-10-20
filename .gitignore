@@ -1,5 +1,7 @@
 # Generated at build time by scripts/prerender-posts.mjs (CI regenerates on deploy)
 /post/
+/sitemap.xml
+/llms.txt
 
 # Local screenshots / scratch images
 image.png

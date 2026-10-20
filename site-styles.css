@@ -850,6 +850,7 @@
     display: block;
     width: 100%;
     text-align: left;
+    text-decoration: none;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 14px;

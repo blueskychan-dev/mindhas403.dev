@@ -142,12 +142,12 @@
     }
     listEl.innerHTML = posts.map(function (p) {
       var tags = (p.tags || []).map(function (t) { return '<span class="tag">' + esc(t) + "</span>"; }).join("");
-      return '<button class="post-card" type="button" data-slug="' + esc(slugFor(p)) + '" data-path="' + esc(p.path) + '" data-title="' + esc(p.title) + '">' +
+      return '<a class="post-card" href="' + esc(urlForSlug(slugFor(p))) + '" data-slug="' + esc(slugFor(p)) + '" data-path="' + esc(p.path) + '" data-title="' + esc(p.title) + '">' +
         '<div class="post-meta"><span class="post-date">' + esc(fmtDate(p.date)) + "</span>" +
         '<span class="post-tags">' + tags + "</span></div>" +
         '<div class="post-title">' + esc(p.title) + "</div>" +
         (p.desc ? '<div class="post-desc">' + esc(p.desc) + "</div>" : "") +
-        "</button>";
+        "</a>";
     }).join("");
   }
 
@@ -313,6 +313,9 @@
   listEl.addEventListener("click", function (e) {
     var card = e.target.closest(".post-card");
     if (!card) { return; }
+    // Cards are real links now: let ctrl/cmd/shift/middle-click through to a new tab.
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button) { return; }
+    e.preventDefault();
     var post = bySlug[card.getAttribute("data-slug")] ||
       { path: card.getAttribute("data-path"), title: card.getAttribute("data-title") };
     openReader(post, true);
