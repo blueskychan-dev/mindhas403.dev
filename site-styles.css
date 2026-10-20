@@ -614,6 +614,16 @@
   .pj-thumb img { display: block; width: 100%; height: 100%; }
   .pj-thumb.cover img { object-fit: cover; transition: transform 0.3s ease; }
   .pj-card:hover .pj-thumb.cover img { transform: scale(1.03); }
+  /* ".fit": banner isn't 16:9 — show all of it, fill the gaps with a blurred copy (--thumb). */
+  .pj-thumb.cover.fit { position: relative; }
+  .pj-thumb.cover.fit::before {
+    content: "";
+    position: absolute;
+    inset: -16px;
+    background: var(--thumb) center / cover no-repeat;
+    filter: blur(14px) brightness(0.9);
+  }
+  .pj-thumb.cover.fit img { position: relative; object-fit: contain; }
   .pj-thumb.logo {
     display: flex;
     align-items: center;
