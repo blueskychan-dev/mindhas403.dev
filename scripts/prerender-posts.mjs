@@ -94,7 +94,7 @@ const BLOG_SUB =
   '<p class="section-sub">Notes, write-ups, and random thoughts</p>';
 const LOADING_MARKER = '<div class="blog-loading">Loading posts…</div>';
 
-const STATIC_PAGES = ["/", "/links", "/blog", "/history", "/devices"];
+const STATIC_PAGES = ["/", "/projects", "/links", "/blog", "/history", "/devices"];
 
 // blogs.json dates are MM-DD-YYYY; <time datetime> needs ISO 8601.
 function isoDate(s) {
@@ -149,6 +149,7 @@ function writeLlmsTxt(entries) {
     "## Pages",
     "",
     `- [About](${SITE}/): profile, skills, education, and certificates from CTF competitions and security courses`,
+    `- [Projects](${SITE}/projects): projects I lead (TechTransThai Security Research, Wonderful Mobile, somtum.fun), code contributions, and open-source tools`,
     `- [Links](${SITE}/links): profiles on GitHub, Mastodon, osu!, OpenStreetMap and elsewhere`,
     `- [Devices](${SITE}/devices): full hardware specifications for every machine in daily use`,
     `- [Blog](${SITE}/blog): notes, CTF write-ups, and personal posts`,
