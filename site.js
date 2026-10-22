@@ -86,7 +86,7 @@
       if (!card) { return; }
       var img = card.querySelector("img");
       var title = card.querySelector(".cc-title");
-      lbImg.src = img.src;
+      lbImg.src = img.dataset.full || img.src;
       lbTitle.textContent = title ? title.textContent : "Certificate";
       lightbox.classList.add("open");
     });

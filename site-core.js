@@ -256,7 +256,7 @@
       var img = card.querySelector("img");
       var title = card.querySelector(".cc-title");
       var meta = card.querySelector(".cc-meta");
-      if (lbImg && img) { lbImg.src = img.src; lbImg.alt = img.alt || "Certificate full view"; }
+      if (lbImg && img) { lbImg.src = img.dataset.full || img.src; lbImg.alt = img.alt || "Certificate full view"; }
       if (lbTitle) { lbTitle.textContent = title ? title.textContent : "Certificate"; }
       if (lbMeta) { lbMeta.textContent = meta ? meta.textContent : ""; }
       if (lbCount) { lbCount.textContent = (index + 1) + " / " + gallery.length; }
