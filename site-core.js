@@ -7,7 +7,7 @@
       name: "blueskychan_",
       handle: "aka mindhas403 \u00b7 she/they",
       avatar: "assets/avatar-online.webp",
-      title: "blueskychan_ \u00b7 about me"
+      title: "blueskychan_ \u00b7 Phapoom Saksri (mindhas403)"
     },
     irl: {
       name: "Phapoom Saksri",

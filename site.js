@@ -27,7 +27,7 @@
       name: "blueskychan_",
       handle: "aka mindhas403 · she/they",
       avatar: "assets/avatar-online.webp",
-      title: "blueskychan_ · about me"
+      title: "blueskychan_ · Phapoom Saksri (mindhas403)"
     },
     irl: {
       name: "Phapoom Saksri",

@@ -3,11 +3,16 @@
   if (!listEl) { return; }
   var searchWrap = document.getElementById("blogSearch");
   var searchInput = document.getElementById("blogSearchInput");
+  var langFilters = document.getElementById("blogLangFilters");
   var allPosts = [];
+  var groupedPosts = [];
+  var pairBySlug = {};
+  var activeLang = "all";
 
-  var JSON_URL = "https://raw.githubusercontent.com/blueskychan-dev/blogs/main/blogs.json";
-  var RAW_BASE = "https://raw.githubusercontent.com/blueskychan-dev/blogs/main/";
-  var ASSET_BASE = "https://raw.githubusercontent.com/blueskychan-dev/blogs/main/public"; // post images live under /public
+  var IS_LOCAL = /^(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)$/i.test(location.hostname);
+  var JSON_URL = IS_LOCAL ? "/_local_blogs/blogs.json" : "https://raw.githubusercontent.com/blueskychan-dev/blogs/main/blogs.json";
+  var RAW_BASE = IS_LOCAL ? "/_local_blogs/" : "https://raw.githubusercontent.com/blueskychan-dev/blogs/main/";
+  var ASSET_BASE = IS_LOCAL ? "/_local_blogs/public" : "https://raw.githubusercontent.com/blueskychan-dev/blogs/main/public"; // post images live under /public
   var REPO_BASE = "https://github.com/blueskychan-dev/blogs/blob/main/";
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -54,6 +59,43 @@
     var base = String((p && p.path) || "").split(/[\\/]/).pop();
     return base.replace(/\.[a-z0-9]+$/i, "");
   }
+  function detectLang(p) {
+    if (p && (p.lang === "th" || p.lang === "en")) { return p.lang; }
+    var s = slugFor(p);
+    if (/-th$/i.test(s)) { return "th"; }
+    if (/[\u0E00-\u0E7F]/.test((p && p.title || "") + " " + (p && p.desc || ""))) { return "th"; }
+    return "en";
+  }
+  function baseSlugFor(slug) {
+    return String(slug || "").replace(/-th$/i, "");
+  }
+  function buildPairs(posts) {
+    pairBySlug = {};
+    var groups = [];
+    var seen = {};
+    posts.forEach(function (p) {
+      var s = slugFor(p);
+      if (seen[s]) { return; }
+      var base = baseSlugFor(s);
+      var enPost = bySlug[base];
+      var thPost = bySlug[base + "-th"];
+      if (enPost && thPost && base !== base + "-th") {
+        seen[base] = true;
+        seen[base + "-th"] = true;
+        var pair = { baseSlug: base, en: enPost, th: thPost, primary: enPost };
+        pairBySlug[base] = pair;
+        pairBySlug[base + "-th"] = pair;
+        groups.push(pair);
+      } else {
+        seen[s] = true;
+        var lang = detectLang(p);
+        var single = { baseSlug: s, en: lang === "en" ? p : null, th: lang === "th" ? p : null, primary: p };
+        pairBySlug[s] = single;
+        groups.push(single);
+      }
+    });
+    return groups;
+  }
   // In the editor/preview the page is served as a file (…/blog.html), where pretty
   // paths can't resolve on reload — fall back to a ?post= query there. On the live
   // site (…/blog) we use the clean /post/<slug> path the user asked for.
@@ -93,11 +135,13 @@
       var posts = (data && data.blogs) ? data.blogs.slice() : [];
       posts.sort(function (a, b) { return ts(b.date) - ts(a.date); });
       var countEl = document.getElementById("blogCount");
-      if (countEl) { countEl.textContent = posts.length; }
       bySlug = {};
       posts.forEach(function (p) { bySlug[slugFor(p)] = p; });
       allPosts = posts;
+      groupedPosts = buildPairs(posts);
+      if (countEl) { countEl.textContent = groupedPosts.length; }
       if (searchWrap && posts.length) { searchWrap.hidden = false; }
+      if (langFilters && posts.length) { langFilters.hidden = false; }
       applyFilter(); // render, honoring any text already typed into the search box
       route(); // honor a deep link on first load (/post/<slug> or ?post=<slug>)
     })
@@ -114,24 +158,44 @@
   // ---------- Search / filter ----------
   // Posts are filtered in-memory; bySlug still holds every post so deep links keep working.
   function postMatches(p, terms) {
+    if (!p) { return false; }
     var hay = [p.title, p.desc].concat(p.tags || []).join(" ").toLowerCase();
     return terms.every(function (t) { return hay.indexOf(t) !== -1; });
   }
+  function groupMatches(g, terms) {
+    if (activeLang === "en" && !g.en) { return false; }
+    if (activeLang === "th" && !g.th) { return false; }
+    if (!terms.length) { return true; }
+    return postMatches(g.en, terms) || postMatches(g.th, terms);
+  }
   function applyFilter() {
     var q = (searchInput && searchInput.value || "").trim().toLowerCase();
-    if (!q) { render(allPosts); return; }
-    var terms = q.split(/\s+/);
-    render(allPosts.filter(function (p) { return postMatches(p, terms); }), q);
+    var terms = q ? q.split(/\s+/) : [];
+    var filtered = groupedPosts.filter(function (g) { return groupMatches(g, terms); });
+    var countEl = document.getElementById("blogCount");
+    if (countEl) { countEl.textContent = filtered.length; }
+    render(filtered, q);
   }
   if (searchInput) { searchInput.addEventListener("input", applyFilter); }
+  if (langFilters) {
+    langFilters.addEventListener("click", function (e) {
+      var btn = e.target.closest("button[data-lang]");
+      if (!btn) { return; }
+      activeLang = btn.getAttribute("data-lang") || "all";
+      langFilters.querySelectorAll("button[data-lang]").forEach(function (b) {
+        b.classList.toggle("active", b === btn);
+      });
+      applyFilter();
+    });
+  }
 
-  function render(posts, query) {
-    if (!posts.length) {
-      if (query) {
+  function render(groups, query) {
+    if (!groups.length) {
+      if (query || activeLang !== "all") {
         listEl.innerHTML =
           '<div class="empty-state"><div class="es-emoji">\ud83d\udd0d</div>' +
           '<div class="es-title">No matching posts</div>' +
-          '<div class="es-sub">Nothing matched \u201c' + esc(query) + '\u201d. Try a different word or tag.</div></div>';
+          '<div class="es-sub">' + (query ? 'Nothing matched \u201c' + esc(query) + '\u201d. Try a different word or tag.' : 'No posts in this language yet.') + '</div></div>';
       } else {
         listEl.innerHTML =
           '<div class="empty-state"><div class="es-emoji">\u270d\ufe0f</div>' +
@@ -140,12 +204,23 @@
       }
       return;
     }
-    listEl.innerHTML = posts.map(function (p) {
+    listEl.innerHTML = groups.map(function (g) {
+      var p = (activeLang === "th" && g.th) ? g.th : (g.en || g.th);
+      var langBadge = (g.en && g.th)
+        ? '<span class="tag lang-badge bilingual" title="Available in English and Thai">EN \u00b7 TH</span>'
+        : (g.th
+          ? '<span class="tag lang-badge th" title="Thai">TH</span>'
+          : '<span class="tag lang-badge en" title="English">EN</span>');
+      var altTitle = (g.en && g.th)
+        ? (p === g.en ? "\ud83c\uddf9\ud83c\udded " + g.th.title : "\ud83c\uddec\ud83c\udde7 " + g.en.title)
+        : "";
       var tags = (p.tags || []).map(function (t) { return '<span class="tag">' + esc(t) + "</span>"; }).join("");
       return '<a class="post-card" href="' + esc(urlForSlug(slugFor(p))) + '" data-slug="' + esc(slugFor(p)) + '" data-path="' + esc(p.path) + '" data-title="' + esc(p.title) + '">' +
         '<div class="post-meta"><span class="post-date">' + esc(fmtDate(p.date)) + "</span>" +
+        langBadge +
         '<span class="post-tags">' + tags + "</span></div>" +
         '<div class="post-title">' + esc(p.title) + "</div>" +
+        (altTitle ? '<div class="post-alt-title">' + esc(altTitle) + "</div>" : "") +
         (p.desc ? '<div class="post-desc">' + esc(p.desc) + "</div>" : "") +
         "</a>";
     }).join("");
@@ -154,8 +229,36 @@
   // ---------- Reader ----------
   var reader = document.getElementById("blogReader");
   var rTitle = document.getElementById("brTitle");
+  var rLangs = document.getElementById("brLangs");
   var rBody = document.getElementById("brBody");
   var rGit = document.getElementById("brGithub");
+
+  function renderReaderLangs(slug) {
+    if (!rLangs) { return; }
+    var pair = pairBySlug[slug];
+    if (!pair || !pair.en || !pair.th) {
+      rLangs.hidden = true;
+      rLangs.innerHTML = "";
+      return;
+    }
+    var enSlug = slugFor(pair.en);
+    var thSlug = slugFor(pair.th);
+    var isTh = (slug === thSlug);
+    rLangs.innerHTML =
+      '<a class="br-lang' + (!isTh ? " active" : "") + '" href="' + esc(urlForSlug(enSlug)) + '" data-slug="' + esc(enSlug) + '" title="Read in English">EN</a>' +
+      '<a class="br-lang' + (isTh ? " active" : "") + '" href="' + esc(urlForSlug(thSlug)) + '" data-slug="' + esc(thSlug) + '" title="อ่านภาษาไทย">TH</a>';
+    rLangs.hidden = false;
+  }
+  if (rLangs) {
+    rLangs.addEventListener("click", function (e) {
+      var btn = e.target.closest("a[data-slug]");
+      if (!btn) { return; }
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button) { return; }
+      e.preventDefault();
+      var target = bySlug[btn.getAttribute("data-slug")];
+      if (target) { openReader(target, true); }
+    });
+  }
 
   // ---------- Comments ----------
   function giscusTheme() {
@@ -202,8 +305,11 @@
     if (!post) { return; }
     var path = post.path;
     var slug = slugFor(post);
+    var pair = pairBySlug[slug];
+    var commentSlug = (pair && pair.en && pair.th) ? pair.baseSlug : slug;
     rTitle.textContent = post.title || "Post";
     rGit.href = REPO_BASE + path;
+    renderReaderLangs(slug);
     document.title = (post.title ? post.title + " \u00b7 " : "") + SITE_TITLE;
     if (push !== false) { pushUrl(urlForSlug(slug)); }
     rBody.innerHTML = '<div class="reader-loading">Loading\u2026</div>';
@@ -285,12 +391,19 @@
             return;
           }
           if (!isExternal && isAsset) { a.href = abs; }
+          var pm = h.match(/^(?:https?:\/\/[^\/]+)?\/post\/([^\/?#]+)/);
+          if (pm && bySlug[decodeURIComponent(pm[1])]) {
+            var targetSlug = decodeURIComponent(pm[1]);
+            a.href = urlForSlug(targetSlug);
+            a.setAttribute("data-internal-slug", targetSlug);
+            return;
+          }
           if (h.charAt(0) !== "#") { a.target = "_blank"; a.rel = "noopener"; }
         });
         rBody.insertAdjacentHTML("beforeend",
           '<section class="post-comments"><h3 class="pc-title">Comments</h3>' +
           '<div class="pc-host" id="brComments"></div></section>');
-        loadComments(slug, document.getElementById("brComments"));
+        loadComments(commentSlug, document.getElementById("brComments"));
         rBody.scrollTop = 0;
       })
       .catch(function () {
@@ -319,6 +432,14 @@
     var post = bySlug[card.getAttribute("data-slug")] ||
       { path: card.getAttribute("data-path"), title: card.getAttribute("data-title") };
     openReader(post, true);
+  });
+  rBody.addEventListener("click", function (e) {
+    var link = e.target.closest("a[data-internal-slug]");
+    if (!link) { return; }
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button) { return; }
+    e.preventDefault();
+    var target = bySlug[link.getAttribute("data-internal-slug")];
+    if (target) { openReader(target, true); }
   });
   document.getElementById("brClose").addEventListener("click", function () { closeReader(true); });
   document.addEventListener("keydown", function (e) {

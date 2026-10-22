@@ -22,11 +22,34 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const SITE = "https://v3.mindhas403.dev";
+const SITE = "https://mindhas403.dev";
 const JSON_URL =
   "https://raw.githubusercontent.com/blueskychan-dev/blogs/main/blogs.json";
-const PREVIEW_IMAGE = SITE + "/favicon.webp";
+const DEFAULT_IMAGE = SITE + "/favicon.webp";
 const SITE_TITLE = "blueskychan_";
+
+// Map a two-letter language code to an Open Graph locale and an IETF tag.
+// Only the two we actually ship; anything else gets the OG default.
+const LOCALE = {
+  en: { og: "en_US", html: "en" },
+  th: { og: "th_TH", html: "th" },
+};
+
+// Build an absolute preview-image URL from a post's `cover:` field, which
+// authors write as a root-absolute path (e.g. /mrbeast/operation-thumbnail.png)
+// so it works both in the blog reader and in link unfurls.
+function coverUrl(post) {
+  const c = post && post.cover;
+  if (!c) return DEFAULT_IMAGE;
+  if (/^https?:\/\//i.test(c)) return c;
+  return SITE + (c.startsWith("/") ? c : "/" + c);
+}
+
+// Pick the html lang= and og:locale for this post. Defaults to en.
+function localeFor(post) {
+  const l = String((post && post.lang) || "en").toLowerCase();
+  return LOCALE[l] || LOCALE.en;
+}
 
 function esc(s) {
   return String(s == null ? "" : s)
@@ -55,6 +78,49 @@ function headFor(post, slug) {
   const desc =
     post.desc ||
     "Notes, CTF write-ups, and random thoughts by blueskychan_.";
+  const image = coverUrl(post);
+  const hasCover = image !== DEFAULT_IMAGE;
+  // Twitter: use the big image card only when there's a real cover, otherwise
+  // the favicon stretches ugly and the summary card looks better.
+  const twCard = hasCover ? "summary_large_image" : "summary";
+  const loc = localeFor(post);
+  // hreflang alternates for a bilingual pair. The post declares its sibling
+  // via alt_lang + alt_slug; we emit links for self, sibling, and x-default
+  // (which conventionally points at the English version so language-agnostic
+  // crawlers land on the one with the widest reach).
+  const altSlug = post.alt_slug ? safeSlug(String(post.alt_slug)) : "";
+  const altLang = post.alt_lang ? String(post.alt_lang).toLowerCase() : "";
+  const altUrl = altSlug ? `${SITE}/post/${encodeURIComponent(altSlug)}` : "";
+  const alternates = altSlug
+    ? [
+        `<link rel="alternate" hreflang="${esc(loc.html)}" href="${esc(url)}"></link>`,
+        `<link rel="alternate" hreflang="${esc(altLang)}" href="${esc(altUrl)}"></link>`,
+        `<link rel="alternate" hreflang="x-default" href="${esc(
+          loc.html === "en" ? url : altUrl
+        )}"></link>`,
+      ].join("\n")
+    : "";
+  // JSON-LD so Google can show this as a BlogPosting rich result. Only the
+  // fields we actually know — do not fabricate ratings, comments, etc.
+  const iso = isoDate(post.date);
+  const ldAuthors = [
+    { "@type": "Person", "@id": SITE + "/#person", name: "Phapoom Saksri", alternateName: "blueskychan_", url: SITE + "/" },
+  ];
+  const ld = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title || SITE_TITLE,
+    description: desc,
+    author: ldAuthors,
+    inLanguage: loc.html,
+    mainEntityOfPage: url,
+    url,
+    image,
+  };
+  if (iso) { ld.datePublished = iso; ld.dateModified = iso; }
+  // JSON escaping: </ anywhere inside the JSON would close the <script>, so
+  // split it. The content is already structured, so no raw user HTML sneaks in.
+  const ldJson = JSON.stringify(ld).replace(/</g, "\\u003c");
   return `<head>
 <meta charset="UTF-8"></meta>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
@@ -62,7 +128,7 @@ function headFor(post, slug) {
 <meta name="description" content="${esc(desc)}"></meta>
 <meta name="author" content="Phapoom Saksri (blueskychan_)"></meta>
 <meta name="theme-color" content="#d56199"></meta>
-<link rel="canonical" href="${esc(url)}"></link>
+<link rel="canonical" href="${esc(url)}"></link>${alternates ? "\n" + alternates : ""}
 <link rel="icon" type="image/webp" href="/favicon.webp"></link>
 <link rel="apple-touch-icon" href="/favicon.webp"></link>
 <meta property="og:type" content="article"></meta>
@@ -70,13 +136,19 @@ function headFor(post, slug) {
 <meta property="og:title" content="${esc(post.title || SITE_TITLE)}"></meta>
 <meta property="og:description" content="${esc(desc)}"></meta>
 <meta property="og:url" content="${esc(url)}"></meta>
-<meta property="og:image" content="${esc(PREVIEW_IMAGE)}"></meta>
-<meta property="og:image:alt" content="blueskychan_"></meta>
-<meta name="twitter:card" content="summary"></meta>
+<meta property="og:locale" content="${esc(loc.og)}"></meta>${
+  altLang && LOCALE[altLang]
+    ? `\n<meta property="og:locale:alternate" content="${esc(LOCALE[altLang].og)}"></meta>`
+    : ""
+}
+<meta property="og:image" content="${esc(image)}"></meta>
+<meta property="og:image:alt" content="${esc(post.title || SITE_TITLE)}"></meta>
+<meta name="twitter:card" content="${twCard}"></meta>
 <meta name="twitter:title" content="${esc(post.title || SITE_TITLE)}"></meta>
 <meta name="twitter:description" content="${esc(desc)}"></meta>
-<meta name="twitter:image" content="${esc(PREVIEW_IMAGE)}"></meta>
+<meta name="twitter:image" content="${esc(image)}"></meta>
 <meta name="twitter:creator" content="@blueskychan_"></meta>
+<script type="application/ld+json">${ldJson}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"></link>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"></link>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800&amp;family=Noto+Sans+Thai:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'"></link>
@@ -167,15 +239,22 @@ function writeLlmsTxt(entries) {
   return writeFile(join(ROOT, "llms.txt"), lines.join("\n"), "utf8");
 }
 
-function writeSitemap(slugs) {
+function writeSitemap(entries) {
   const today = new Date().toISOString().slice(0, 10);
-  const urls = STATIC_PAGES.concat(slugs.map((s) => `/post/${s}`));
+  // Static pages get today's date (no better signal; they're rendered live).
+  const staticRows = STATIC_PAGES.map(
+    (u) => `  <url><loc>${SITE}${u}</loc><lastmod>${today}</lastmod></url>`
+  );
+  // Post rows get the post's own date, so Google doesn't see every URL as
+  // "modified today" every build and start ignoring the field.
+  const postRows = entries.map(({ slug, post }) => {
+    const iso = isoDate(post.date) || today;
+    return `  <url><loc>${SITE}/post/${slug}</loc><lastmod>${iso}</lastmod></url>`;
+  });
   const xml =
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-    urls
-      .map((u) => `  <url><loc>${SITE}${u}</loc><lastmod>${today}</lastmod></url>`)
-      .join("\n") +
+    staticRows.concat(postRows).join("\n") +
     "\n</urlset>\n";
   return writeFile(join(ROOT, "sitemap.xml"), xml, "utf8");
 }
@@ -205,10 +284,17 @@ async function main() {
 
   let posts = [];
   let feedOk = true;
+  const localBlogsJson = join(ROOT, "..", "blogs", "blogs.json");
   try {
-    const res = await fetch(JSON_URL + "?_=" + Date.now());
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const data = await res.json();
+    let data;
+    try {
+      const rawLocal = await readFile(localBlogsJson, "utf8");
+      data = JSON.parse(rawLocal);
+    } catch {
+      const res = await fetch(JSON_URL + "?_=" + Date.now());
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      data = await res.json();
+    }
     posts = (data && data.blogs) ? data.blogs : [];
   } catch (e) {
     // Don't fail the deploy if the blog feed is unreachable — skip the post
@@ -222,7 +308,8 @@ async function main() {
     for (const post of posts) {
       const slug = safeSlug(slugFor(post));
       if (!slug) continue;
-      const html = `<!DOCTYPE html>\n<html lang="en" data-page="blog">\n${headFor(post, slug)}\n${bodyForPost(body, post)}\n`;
+      const htmlLang = localeFor(post).html;
+      const html = `<!DOCTYPE html>\n<html lang="${esc(htmlLang)}" data-page="blog">\n${headFor(post, slug)}\n${bodyForPost(body, post)}\n`;
       const dir = join(ROOT, "post", slug);
       await mkdir(dir, { recursive: true });
       await writeFile(join(dir, "index.html"), html, "utf8");
@@ -230,11 +317,10 @@ async function main() {
     }
   }
 
-  const slugs = entries.map((e) => e.slug);
-  await writeSitemap(slugs);
+  await writeSitemap(entries);
   await writeLlmsTxt(entries);
   console.log(
-    `[prerender] Wrote ${slugs.length} post page(s) under /post/, sitemap.xml with ${STATIC_PAGES.length + slugs.length} URL(s), and llms.txt`
+    `[prerender] Wrote ${entries.length} post page(s) under /post/, sitemap.xml with ${STATIC_PAGES.length + entries.length} URL(s), and llms.txt`
   );
 }
 

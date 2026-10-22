@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://v3.mindhas403.dev/sitemap.xml
+Sitemap: https://mindhas403.dev/sitemap.xml

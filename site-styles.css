@@ -988,12 +988,28 @@
     white-space: nowrap;
   }
   .post-tags { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+  .tag.lang-badge {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+  }
+  .tag.lang-badge.bilingual {
+    background: var(--pink-bg);
+    color: var(--accent-text);
+  }
   .post-title {
     font-size: 17px;
     font-weight: 800;
     letter-spacing: -0.2px;
     line-height: 1.3;
     text-wrap: pretty;
+  }
+  .post-alt-title {
+    margin-top: 3px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-text);
+    line-height: 1.4;
   }
   .post-desc {
     margin-top: 5px;
@@ -1056,6 +1072,32 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .reader-head .br-langs {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 999px;
+    background: var(--chip-bg);
+    border: 1px solid var(--separator);
+  }
+  .reader-head .br-langs[hidden] { display: none; }
+  .reader-head .br-lang {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--fg-dim);
+    padding: 4px 10px;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .reader-head .br-lang:hover { color: var(--fg); text-decoration: none; }
+  .reader-head .br-lang.active {
+    background: var(--accent);
+    color: var(--accent-fg);
   }
   .reader-head .br-git {
     flex: none;
