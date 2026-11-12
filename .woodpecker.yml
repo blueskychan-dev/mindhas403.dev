@@ -1,0 +1,14 @@
+when:
+  - branch: main
+    event: push
+  - event: tag
+
+steps:
+  - name: deploy
+    image: alpine
+    commands:
+      - rm -rf /mnt/caddy-sites/mindhas403.dev/*
+      - cp -r * /mnt/caddy-sites/mindhas403.dev
+      - rm -rf /mnt/caddy-sites/mindhas403.dev/.git
+    volumes:
+      - /home/core/caddy-sites:/mnt/caddy-sites
