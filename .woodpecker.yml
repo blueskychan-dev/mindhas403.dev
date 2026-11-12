@@ -1,7 +1,7 @@
 when:
   - branch: main
     event: push
-  - event: tag
+  - event: manual
 
 steps:
   - name: deploy
